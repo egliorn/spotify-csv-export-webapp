@@ -1,16 +1,11 @@
-import tekore as tk
-from flask import Flask, request, redirect, render_template, session, url_for, send_file
-import csv
+from api_caller import ApiCaller, auths, users
+from flask import Flask, request, redirect, render_template, session, url_for
 
-conf = tk.config_from_environment()
-cred = tk.Credentials(*conf)
-spotify = tk.Spotify()
-
-auths = {}
-users = {}
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '_'
+
+api_caller = ApiCaller()
 
 
 @app.route('/', methods=['GET'])
@@ -20,12 +15,8 @@ def home():
 
 @app.route('/login', methods=['GET'])
 def login():
-    scopes = [
-        tk.scope.every
-    ]
-    auth = tk.UserAuth(cred, scope=scopes)
-    auths[auth.state] = auth
-    return redirect(auth.url)
+    auth_url = api_caller.get_auth_url()
+    return redirect(auth_url)
 
 
 @app.route('/callback', methods=['GET'])
@@ -49,18 +40,7 @@ def results():
     user = session.get('user')
     token = users.get(user)
 
-    with spotify.token_as(token):
-        first_items = spotify.saved_tracks()
-
-        saved_tracks = []
-        for item in spotify.all_items(first_items):
-            saved_tracks.append(
-                {
-                    'track_name': item.track.name,
-                    'artists': ",".join([artist.name for artist in item.track.artists]),
-                    'album': item.track.album.name
-                }
-            )
+    saved_tracks = api_caller.get_results(token)
 
     return render_template('results.html', saved_tracks=saved_tracks)
 
