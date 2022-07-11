@@ -17,6 +17,11 @@ def home():
     return render_template('index.html', auths=auths, users=users)
 
 
+@app.route('/info', methods=['GET'])
+def info():
+    return render_template('info.html')
+
+
 @app.route('/login', methods=['GET'])
 def login():
     if 'user' in session:
@@ -55,7 +60,7 @@ def results():
         user_name = user_data.display_name
         user_id = user_data.id
 
-    return f"hello, {user_name} ({user_id})<br><a href={url_for('logout')}>logout</a>"
+    return render_template('results.html', user_name=user_name)
 
 
 @app.route('/logout', methods=['GET'])

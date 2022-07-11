@@ -1,12 +1,51 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Results</title>
-</head>
-<body>
-    {% for track in saved_tracks %}
-        {{ track['track_name'] }} | {{ track['artists'] }} | {{ track['album'] }} <br>
-    {% endfor %}
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block main %}
+    <main>
+        {# welcome #}
+        <section class="d-flex justify-content-between">
+            <h1>Welcome, {{ user_name }}</h1>
+            <a href="{{ url_for('logout') }}">logout</a>
+        </section>
+
+        {# download all #}
+        <section class="">
+            <p>download separate, or <a class="btn btn-primary btn-sm" href="#">download all</a></p>
+        </section>
+
+        {# saved tracks #}
+        <section class="">
+            <ul class="list-group w-auto">
+                <li class="list-group-item d-flex gap-3 py-3" aria-current="true">
+                    <img src="../static/images/playlist_example.jpeg"
+                         alt="" class="align-self-center rounded-circle flex-shrink-0" width="60" height="60">
+                    <div class="d-flex gap-2 w-100 justify-content-between">
+                        <div>
+                            <h3 class="mb-0">Liked tracks</h3>
+                            <p class="mb-0 opacity-75">100 items</p>
+                        </div>
+                        <a href="#" class="opacity-50 text-nowrap"><i class="bi bi-download"></i></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        {# saved playlists #}
+        <section>
+            <h2>Playlists</h2>
+            <ul class="list-group w-auto">
+                <li class="list-group-item d-flex gap-3 py-3" aria-current="true">
+                    <img src="../static/images/playlist_example.jpeg"
+                         alt="" class="align-self-center rounded-circle flex-shrink-0" width="60" height="60">
+                    <div class="d-flex gap-2 w-100 justify-content-between">
+                        <div>
+                            <h3 class="mb-0">Ruiner</h3>
+                            <p class="mb-0 opacity-75">36 items</p>
+                        </div>
+                        <a href="#" class="opacity-50 text-nowrap"><i class="bi bi-download"></i></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+    </main>
+{% endblock %}

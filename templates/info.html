@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block main %}
+    <main>
+        <section class="container-fluid enable-rounded">
+            <h1>Spotify Export Service</h1>
+            <p>With this application you can download saved tracks and playlists from spotify user's library</p>
+            <h2>Required Spotify access:</h2>
+            <p>Application needs access to your Spotify account to see your library.
+            Once you click on the "sign in with spotify" button, this service will redirect you to the Spotify Account
+            service. If security check passes and access granted, this service gains your Spotify access token.
+            Logging out deletes server-stored access token.</p>
+            <h2>Information that the service has access to:</h2>
+            <p>used scopes</p>
+            <p>If you want to see sourcecode, check <a href="#">project GitHub page</a></p>
+            <a class="btn btn-primary" href="{{ url_for('home') }}" role="button">return to home page</a>
+        </section>
+    </main>
+{% endblock %}
