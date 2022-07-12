@@ -14,7 +14,7 @@ app.config['SECRET_KEY'] = '_'
 
 @app.route('/', methods=['GET'])
 def home():
-    return render_template('index.html', auths=auths, users=users)
+    return render_template('index.html')
 
 
 @app.route('/info', methods=['GET'])
