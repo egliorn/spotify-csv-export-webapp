@@ -14,6 +14,8 @@ app.config['SECRET_KEY'] = '_'
 
 @app.route('/', methods=['GET'])
 def home():
+    if 'user' in session:
+        return redirect(url_for('results'))
     return render_template('index.html')
 
 
@@ -30,6 +32,7 @@ def login():
     scopes = tk.scope.every
     auth = tk.UserAuth(cred, scope=scopes)
     auths[auth.state] = auth
+
     return redirect(auth.url)
 
 
@@ -54,13 +57,24 @@ def results():
     user = session.get('user')
     token = users.get(user)
 
+    if token.is_expiring:
+        token = cred.refresh(token)
+        users[user] = token
+
     with spotify.token_as(token):
-        user_data = spotify.current_user()
+        spotify_user = spotify.current_user()
+        username = spotify_user.display_name
+        userid = spotify_user.id
 
-        user_name = user_data.display_name
-        user_id = user_data.id
+        # users saved tracks, SavedTrackPaging
+        saved_tracks = spotify.saved_tracks()
 
-    return render_template('results.html', user_name=user_name)
+        # users saved playlists, PlaylistTrackPaging
+        user_playlists = spotify.playlists(user_id=userid)
+        playlists_ids = [pl.id for pl in user_playlists.items]
+        saved_playlists = [spotify.playlist(playlist_id) for playlist_id in playlists_ids]
+
+    return render_template('results.html', username=username, saved_tracks=saved_tracks, saved_playlists=saved_playlists)
 
 
 @app.route('/logout', methods=['GET'])
@@ -68,7 +82,14 @@ def logout():
     uid = session.pop('user', None)
     if uid is not None:
         users.pop(uid, None)
+
     return redirect(url_for('home'))
+
+
+@app.route('/test')
+def test():
+    uses = [f'{user}<br>' for user in users]
+    return f"{uses}"
 
 
 if __name__ == '__main__':
