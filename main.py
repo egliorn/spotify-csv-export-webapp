@@ -1,12 +1,8 @@
-import tekore as tk
 from flask import Flask, request, redirect, render_template, session, url_for
+from user_auth import UserAuth, auths, refresh_token
+from spotify_handler import SpotifyHandler
 
-conf = tk.config_from_environment()
-cred = tk.Credentials(*conf)
-spotify = tk.Spotify()
-
-auths = {}  # Ongoing authorisations: state -> UserAuth
-users = {}  # User tokens: state -> token (use state as a user ID)
+users = {}  # User tokens: UserAuth.state(user ID) -> token
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '_'
@@ -29,8 +25,7 @@ def login():
     if 'user' in session:
         return redirect(url_for('results'))
 
-    scopes = tk.scope.every
-    auth = tk.UserAuth(cred, scope=scopes)
+    auth = UserAuth()
     auths[auth.state] = auth
 
     return redirect(auth.url)
@@ -45,8 +40,8 @@ def login_callback():
     if auth is None:
         return 'Invalid state!', 400
 
-    token = auth.request_token(code, state)
-    session['user'] = state
+    token = auth.get_token(code, state)
+    session['user'] = state  # adds user to flask-session
     users[state] = token
 
     return redirect(url_for('results'))
@@ -58,21 +53,13 @@ def results():
     token = users.get(user)
 
     if token.is_expiring:
-        token = cred.refresh(token)
+        token = refresh_token(token)
         users[user] = token
 
-    with spotify.token_as(token):
-        spotify_user = spotify.current_user()
-        username = spotify_user.display_name
-        userid = spotify_user.id
-
-        # users saved tracks, SavedTrackPaging
-        saved_tracks = spotify.saved_tracks()
-
-        # users saved playlists, PlaylistTrackPaging
-        user_playlists = spotify.playlists(user_id=userid)
-        playlists_ids = [pl.id for pl in user_playlists.items]
-        saved_playlists = [spotify.playlist(playlist_id) for playlist_id in playlists_ids]
+    spotify = SpotifyHandler(token)
+    username = spotify.get_username()
+    saved_tracks = spotify.get_saved_tracks()
+    saved_playlists = spotify.get_saved_playlists()
 
     return render_template('results.html', username=username, saved_tracks=saved_tracks, saved_playlists=saved_playlists)
 
@@ -84,12 +71,6 @@ def logout():
         users.pop(uid, None)
 
     return redirect(url_for('home'))
-
-
-@app.route('/test')
-def test():
-    uses = [f'{user}<br>' for user in users]
-    return f"{uses}"
 
 
 if __name__ == '__main__':
