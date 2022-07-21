@@ -24,7 +24,7 @@
                             <h3 class="mb-0">Liked tracks</h3>
                             <p class="mb-0 opacity-75">{{ saved_tracks.total }} songs</p>
                         </div>
-                        <a href="#" class="opacity-50 text-nowrap"><i class="bi bi-download"></i></a>
+                        <a href="{{ url_for('generate_csv', playlist_id="liked_tracks") }}" class="opacity-50 text-nowrap"><i class="bi bi-download"></i></a>
                     </div>
                 </li>
             </ul>
@@ -43,7 +43,7 @@
                             <h3 class="mb-0">{{ playlist.name }}</h3>
                             <p class="mb-0 opacity-75">{{ playlist.tracks.total }} songs</p>
                         </div>
-                        <a href="#" class="opacity-50 text-nowrap"><i class="bi bi-download"></i></a>
+                        <a href="{{ url_for('generate_csv', playlist_id=playlist.id) }}" class="opacity-50 text-nowrap"><i class="bi bi-download"></i></a>
                     </div>
                 </li>
                 {% endfor %}

@@ -1,5 +1,8 @@
 import tekore as tk
 
+CONF = tk.config_from_environment()
+CRED = tk.Credentials(*CONF)
+
 
 class SpotifyHandler(tk.Spotify):
     """tekore.Spotify, client to WEB API endpoints"""
@@ -7,6 +10,10 @@ class SpotifyHandler(tk.Spotify):
     def __init__(self, token):
         super().__init__()
         self.token = token
+
+    def refresh_token(self):
+        """refreshed token"""
+        self.token = CRED.refresh(self.token)
 
     def get_username(self):
         """:returns spotify username of current user"""
@@ -16,6 +23,10 @@ class SpotifyHandler(tk.Spotify):
         """:returns user's saved tracks, 'SavedTrackPaging'"""
         return self.saved_tracks()
 
+    def get_playlist_tracks(self, playlist_id):
+        """:returns playlist's tracks, 'TrackPaging'"""
+        return self.playlist(playlist_id).tracks
+
     def get_saved_playlists(self):
         """:returns a list of all user's playlists, 'PlaylistTrackPaging'"""
         user_id = self.current_user().id
@@ -23,3 +34,18 @@ class SpotifyHandler(tk.Spotify):
         playlists_ids = [pl.id for pl in user_playlists.items]
 
         return [self.playlist(playlist_id) for playlist_id in playlists_ids]
+
+    def playlist_unpack(self, track_paging):
+        """unpacks the contents of given 'SavedTrackPaging' or 'PlaylistTrackPaging'"""
+        contents = [["track_name", "artists", "album", "duration"]]
+        for item in self.all_items(track_paging):
+            contents.append(
+                [
+                    item.track.name,
+                    "; ".join([artist.name for artist in item.track.artists]),
+                    item.track.album.name,
+                    f"{round(item.track.duration_ms / 1000)}sec"
+                ]
+            )
+
+        return contents
