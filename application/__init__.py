@@ -1,8 +1,8 @@
 from flask import Flask, request, redirect, render_template, session, url_for
-from application.user_auth import UserAuth, refresh_token, auths
+from application.user_auth import UserAuth, auths
 from application.spotify_handler import SpotifyHandler
 
-users = {}  # User tokens: UserAuth.state(user ID) -> token
+users = {}  # UserAuth.state(user ID) -> SpotifyHandler
 
 
 def init_app():
@@ -40,26 +40,42 @@ def init_app():
 
         token = auth.get_token(code, state)
         session['user'] = state  # adds user to flask-session
-        users[state] = token
+        users[state] = SpotifyHandler(token)
 
         return redirect(url_for('results'))
 
     @app.route('/results', methods=['GET'])
     def results():
         user = session.get('user')
-        token = users.get(user)
+        spotify = users.get(user)
 
-        if token.is_expiring:
-            token = refresh_token(token)
-            users[user] = token
+        if spotify.token.is_expiring:
+            spotify.refresh_token()
 
-        spotify = SpotifyHandler(token)
         username = spotify.get_username()
         saved_tracks = spotify.get_saved_tracks()
         saved_playlists = spotify.get_saved_playlists()
 
         return render_template('results.html', username=username, saved_tracks=saved_tracks,
                                saved_playlists=saved_playlists)
+
+    @app.route('/download/<playlist_id>.csv')
+    def generate_csv(playlist_id):
+        user = session.get('user')
+        spotify = users.get(user)
+
+        if playlist_id == "liked_tracks":
+            playlist = spotify.get_saved_tracks()
+        else:
+            playlist = spotify.get_playlist_tracks(playlist_id)
+
+        playlist_contents = spotify.playlist_unpack(playlist)
+
+        def generate():
+            for row in playlist_contents:
+                yield f"{','.join(row)}\n"
+
+        return app.response_class(generate(), mimetype='text/csv')
 
     @app.route('/logout', methods=['GET'])
     def logout():
