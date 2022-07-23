@@ -71,11 +71,11 @@ def init_app():
 
         playlist_contents = spotify.playlist_unpack(playlist)
 
-        def generate():
+        def generate():  # csv generator, each 'yield' sent to browser directly
             for row in playlist_contents:
                 yield f"{','.join(row)}\n"
 
-        return app.response_class(generate(), mimetype='text/csv')
+        return app.response_class(generate(), mimetype='text/csv')  # flask stream
 
     @app.route('/logout', methods=['GET'])
     def logout():
