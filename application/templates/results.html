@@ -10,7 +10,8 @@
 
         {# download all #}
         <section class="">
-            <p>download separate, or <a class="btn btn-primary btn-sm" href="#">download all</a></p>
+            <p>download separate, or <a class="btn btn-primary btn-sm" href="{{ url_for('send_zip') }}">
+                download all</a></p>
         </section>
 
         {# saved tracks #}
@@ -24,7 +25,8 @@
                             <h3 class="mb-0">Liked tracks</h3>
                             <p class="mb-0 opacity-75">{{ saved_tracks.total }} songs</p>
                         </div>
-                        <a href="{{ url_for('generate_csv', playlist_id="liked_tracks") }}" class="opacity-50 text-nowrap"><i class="bi bi-download"></i></a>
+                        <a href="{{ url_for('send_csv', playlist_id="0", playlist_name="Liked tracks") }}"
+                           class="opacity-50 text-nowrap"><i class="bi bi-download"></i></a>
                     </div>
                 </li>
             </ul>
@@ -43,7 +45,8 @@
                             <h3 class="mb-0">{{ playlist.name }}</h3>
                             <p class="mb-0 opacity-75">{{ playlist.tracks.total }} songs</p>
                         </div>
-                        <a href="{{ url_for('generate_csv', playlist_id=playlist.id) }}" class="opacity-50 text-nowrap"><i class="bi bi-download"></i></a>
+                        <a href="{{ url_for('send_csv', playlist_id=playlist.id, playlist_name=playlist.name) }}"
+                           class="opacity-50 text-nowrap"><i class="bi bi-download"></i></a>
                     </div>
                 </li>
                 {% endfor %}

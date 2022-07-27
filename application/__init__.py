@@ -1,6 +1,8 @@
-from flask import Flask, request, redirect, render_template, session, url_for
+from flask import Flask, request, redirect, render_template, session, url_for, send_file
 from application.user_auth import UserAuth, auths
 from application.spotify_handler import SpotifyHandler
+from application.file_handler import generate_csv, generate_zip
+
 
 users = {}  # UserAuth.state(user ID) -> SpotifyHandler
 
@@ -59,23 +61,39 @@ def init_app():
         return render_template('results.html', username=username, saved_tracks=saved_tracks,
                                saved_playlists=saved_playlists)
 
-    @app.route('/download/<playlist_id>.csv')
-    def generate_csv(playlist_id):
+    @app.route('/download/csv')
+    def send_csv():
         user = session.get('user')
         spotify = users.get(user)
 
-        if playlist_id == "liked_tracks":
-            playlist = spotify.get_saved_tracks()
+        playlist_id = request.args.get('playlist_id')
+        playlist_name = request.args.get('playlist_name')
+
+        if playlist_id == "0":
+            playlist_contents = spotify.playlist_unpack(spotify.get_saved_tracks())
         else:
-            playlist = spotify.get_playlist_tracks(playlist_id)
+            playlist_contents = spotify.playlist_unpack(spotify.get_playlist_tracks(playlist_id))
 
-        playlist_contents = spotify.playlist_unpack(playlist)
+        csv_file = generate_csv(playlist_contents)
+        return send_file(csv_file, download_name=f"{playlist_name}.csv", mimetype='text/csv')
 
-        def generate():  # csv generator, each 'yield' sent to browser directly
-            for row in playlist_contents:
-                yield f"{','.join(row)}\n"
+    @app.route('/download/zip')
+    def send_zip():
+        user = session.get('user')
+        spotify = users.get(user)
 
-        return app.response_class(generate(), mimetype='text/csv')  # flask stream
+        saved_tracks = spotify.get_saved_tracks()  # SavedTrackPaging
+        saved_playlists = spotify.get_saved_playlists()  # PlaylistTrackPaging
+
+        # playlist name -> BytesIO csv file
+        csv_files = {"Liked tracks": generate_csv(spotify.playlist_unpack(saved_tracks))}
+        for playlist in saved_playlists:
+            playlist_contents = spotify.playlist_unpack(playlist.tracks)
+            csv_files[playlist.name] = generate_csv(playlist_contents)
+
+        zip_file = generate_zip(csv_files)
+
+        return send_file(zip_file, download_name='spotify library.zip')
 
     @app.route('/logout', methods=['GET'])
     def logout():
