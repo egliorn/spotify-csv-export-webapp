@@ -36,14 +36,14 @@ class SpotifyHandler(tk.Spotify):
         return [self.playlist(playlist_id) for playlist_id in playlists_ids]
 
     def playlist_unpack(self, track_paging):
-        """unpacks the contents of given 'SavedTrackPaging' or 'PlaylistTrackPaging', for csv export"""
+        """:returns playlist contents of given 'SavedTrackPaging' or 'PlaylistTrackPaging'"""
         contents = [["track_name", "artists", "album", "duration"]]
         for item in self.all_items(track_paging):
             contents.append(
                 [
-                    item.track.name.replace(",", " "),
-                    "; ".join([artist.name.replace(",", " ") for artist in item.track.artists]),
-                    item.track.album.name.replace(",", " "),
+                    item.track.name,
+                    ", ".join([artist.name for artist in item.track.artists]),
+                    item.track.album.name,
                     f"{round(item.track.duration_ms / 1000)}sec"
                 ]
             )
