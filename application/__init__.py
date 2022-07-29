@@ -41,8 +41,11 @@ def init_app():
             return 'Invalid state!', 400
 
         token = auth.get_token(code, state)
-        session['user'] = state  # adds user to flask-session
-        users[state] = SpotifyHandler(token)
+
+        spotify = SpotifyHandler(token)
+        spotify_user_id = spotify.current_user().id
+        users[spotify_user_id] = spotify
+        session['user'] = spotify_user_id
 
         return redirect(url_for('results'))
 
@@ -58,8 +61,12 @@ def init_app():
         saved_tracks = spotify.get_saved_tracks()
         saved_playlists = spotify.get_saved_playlists()
 
-        return render_template('results.html', username=username, saved_tracks=saved_tracks,
-                               saved_playlists=saved_playlists)
+        return render_template(
+            'results.html',
+            username=username,
+            saved_tracks=saved_tracks,
+            saved_playlists=saved_playlists
+        )
 
     @app.route('/download/csv')
     def send_csv():
@@ -75,7 +82,11 @@ def init_app():
             playlist_contents = spotify.playlist_unpack(spotify.get_playlist_tracks(playlist_id))
 
         csv_file = generate_csv(playlist_contents)
-        return send_file(csv_file, download_name=f"{playlist_name}.csv", mimetype='text/csv')
+        return send_file(
+            csv_file,
+            download_name=f"{playlist_name}.csv",
+            mimetype='text/csv'
+        )
 
     @app.route('/download/zip')
     def send_zip():
@@ -93,7 +104,10 @@ def init_app():
 
         zip_file = generate_zip(csv_files)
 
-        return send_file(zip_file, download_name='spotify library.zip')
+        return send_file(
+            zip_file,
+            download_name='spotify library.zip'
+        )
 
     @app.route('/logout', methods=['GET'])
     def logout():
