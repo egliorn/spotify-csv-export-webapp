@@ -4,12 +4,16 @@ from application.spotify_handler import SpotifyHandler
 from application.file_handler import generate_csv, generate_zip
 
 
-users = {}  # UserAuth.state(user ID) -> SpotifyHandler
+users = {}  # Spotify user ID -> SpotifyHandler
 
 
 def init_app():
     app = Flask(__name__)
     app.config.from_object('config.Config')
+
+    @app.before_request
+    def make_session_permanent():
+        session.permanent = True
 
     @app.route('/', methods=['GET'])
     def home():
