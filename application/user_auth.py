@@ -2,7 +2,12 @@ import tekore as tk
 
 CONF = tk.config_from_environment()
 CRED = tk.Credentials(*CONF)
-SCOPES = tk.scope.every
+SCOPES = [
+    'user-read-email',  # for spotify.current_user().id and current_user().display_name
+    'user-library-read',
+    'playlist-read-collaborative',
+    'playlist-read-private',
+]
 
 auths = {}  # Ongoing authorisations: UserAuth.state(user ID) -> UserAuth
 
