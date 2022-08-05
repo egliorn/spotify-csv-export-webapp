@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, render_template, session, url_for, send_file
+from flask import Flask, abort, url_for, request, redirect, render_template, session, send_file
 from application.user_auth import UserAuth, auths
 from application.spotify_handler import SpotifyHandler
 from application.file_handler import generate_csv, generate_zip
@@ -37,12 +37,15 @@ def init_app():
 
     @app.route('/callback', methods=['GET'])
     def login_callback():
+        if request.args.get('error') == 'access_denied':
+            abort(401)
+
         code = request.args.get('code')
         state = request.args.get('state')
         auth = auths.pop(state)
 
         if auth is None:
-            return 'Invalid state!', 400
+            abort(400)
 
         token = auth.get_token(code, state)
 
