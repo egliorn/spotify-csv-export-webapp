@@ -15,25 +15,17 @@ def init_app():
     def make_session_permanent():
         session.permanent = True
 
-    @app.route('/', methods=['GET'])
+    @app.route('/', methods=['GET', 'POST'])
     def home():
         if 'user' in session:
             return redirect(url_for('results'))
+
+        if request.method == 'POST':
+            auth = UserAuth()
+            auths[auth.state] = auth
+
+            return redirect(auth.url)
         return render_template('index.html')
-
-    @app.route('/info', methods=['GET'])
-    def info():
-        return render_template('info.html')
-
-    @app.route('/login', methods=['GET'])
-    def login():
-        if 'user' in session:
-            return redirect(url_for('results'))
-
-        auth = UserAuth()
-        auths[auth.state] = auth
-
-        return redirect(auth.url)
 
     @app.route('/callback', methods=['GET'])
     def login_callback():
@@ -123,5 +115,9 @@ def init_app():
             users.pop(uid, None)
 
         return redirect(url_for('home'))
+
+    @app.route('/info', methods=['GET'])
+    def info():
+        return render_template('info.html')
 
     return app

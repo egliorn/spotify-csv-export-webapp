@@ -6,12 +6,16 @@
             <div class="row">
                 <div class="col-lg-6">
                     <h1>Export from <a id="spotify-theme" href="https://www.spotify.com/">Spotify</a> to CSV</h1>
+
                     <h3>download your liked songs and playlists in .csv format</h3>
-                    <a href="{{ url_for('login') }}" type="button" class="btn btn-primary btn-lg">Sign in with Spotify</a>
-                    <a href="{{ url_for('info') }}" type="button" class="btn btn-outline-secondary btn-lg">
-                        <i class="fa-solid fa-circle-info"></i>
-                        What is it?
-                    </a>
+
+                    <form method="post">
+                        <button name="login" class="btn btn-primary btn-lg">Sign in with Spotify</button>
+                        <a href="{{ url_for('info') }}" type="button" class="btn btn-outline-secondary btn-lg">
+                            <i class="fa-solid fa-circle-info"></i>
+                            What is it?
+                        </a>
+                    </form>
                 </div>
                 <div class="col-lg-6">
                     <!--placeholder image-->
