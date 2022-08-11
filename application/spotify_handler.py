@@ -1,19 +1,11 @@
 import tekore as tk
 
-CONF = tk.config_from_environment()
-CRED = tk.Credentials(*CONF)
-
 
 class SpotifyHandler(tk.Spotify):
     """tekore.Spotify, client to WEB API endpoints"""
 
-    def __init__(self, token):
+    def __init__(self):
         super().__init__()
-        self.token = token
-
-    def refresh_token(self):
-        """refreshed token"""
-        self.token = CRED.refresh(self.token)
 
     def get_username(self):
         """:returns spotify username of current user"""
