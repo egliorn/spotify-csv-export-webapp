@@ -12,6 +12,11 @@ SCOPES = [
 auths = {}  # Ongoing authorisations: UserAuth.state(user ID) -> UserAuth
 
 
+def refresh_token(token):
+    """refreshed token"""
+    return CRED.refresh(token)
+
+
 class UserAuth(tk.UserAuth):
     """tekore.UserAuth, implement user authorisation flow"""
 

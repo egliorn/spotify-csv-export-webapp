@@ -1,15 +1,22 @@
 from flask import Flask, abort, url_for, request, redirect, render_template, session, send_file
-from application.user_auth import UserAuth, auths
+from flask_sqlalchemy import SQLAlchemy
+from application.user_auth import UserAuth, auths, refresh_token
 from application.spotify_handler import SpotifyHandler
 from application.file_handler import generate_csv, generate_zip
-
-
-users = {}  # Spotify user ID -> SpotifyHandler
 
 
 def init_app():
     app = Flask(__name__)
     app.config.from_object('config.Config')
+    db = SQLAlchemy(app)
+
+    spotify = SpotifyHandler()
+
+    class User(db.Model):
+        __tablename__ = "users"
+        id = db.Column(db.String, primary_key=True)
+        token_object = db.Column(db.PickleType())
+    db.create_all()
 
     @app.before_request
     def make_session_permanent():
@@ -41,24 +48,33 @@ def init_app():
 
         token = auth.get_token(code, state)
 
-        spotify = SpotifyHandler(token)
-        spotify_user_id = spotify.current_user().id
-        users[spotify_user_id] = spotify
+        with spotify.token_as(token):
+            spotify_user_id = spotify.current_user().id
+
+        user = User(id=spotify_user_id, token_object=token)
+        db.session.add(user)
+        db.session.commit()
+
         session['user'] = spotify_user_id
 
         return redirect(url_for('results'))
 
     @app.route('/results', methods=['GET'])
     def results():
-        user = session.get('user')
-        spotify = users.get(user)
+        user_id = session.get('user')
+        token = User.query.filter_by(id=user_id).first().token_object
 
-        if spotify.token.is_expiring:
-            spotify.refresh_token()
+        with spotify.token_as(token):
+            if spotify.token.is_expiring:
+                token = refresh_token(token)
 
-        username = spotify.get_username()
-        saved_tracks = spotify.get_saved_tracks()
-        saved_playlists = spotify.get_saved_playlists()
+                user = User.query.get(user_id)
+                user.token_object = token
+                db.session.commit()
+
+            username = spotify.get_username()
+            saved_tracks = spotify.get_saved_tracks()
+            saved_playlists = spotify.get_saved_playlists()
 
         return render_template(
             'results.html',
@@ -69,16 +85,17 @@ def init_app():
 
     @app.route('/download/csv')
     def send_csv():
-        user = session.get('user')
-        spotify = users.get(user)
+        user_id = session.get('user')
+        token = User.query.filter_by(id=user_id).first().token_object
 
         playlist_id = request.args.get('playlist_id')
         playlist_name = request.args.get('playlist_name')
 
-        if playlist_id == "0":
-            playlist_contents = spotify.playlist_unpack(spotify.get_saved_tracks())
-        else:
-            playlist_contents = spotify.playlist_unpack(spotify.get_playlist_tracks(playlist_id))
+        with spotify.token_as(token):
+            if playlist_id == "0":
+                playlist_contents = spotify.playlist_unpack(spotify.get_saved_tracks())
+            else:
+                playlist_contents = spotify.playlist_unpack(spotify.get_playlist_tracks(playlist_id))
 
         csv_file = generate_csv(playlist_contents)
         return send_file(
@@ -89,17 +106,18 @@ def init_app():
 
     @app.route('/download/zip')
     def send_zip():
-        user = session.get('user')
-        spotify = users.get(user)
+        user_id = session.get('user')
+        token = User.query.filter_by(id=user_id).first().token_object
 
-        saved_tracks = spotify.get_saved_tracks()  # SavedTrackPaging
-        saved_playlists = spotify.get_saved_playlists()  # PlaylistTrackPaging
+        with spotify.token_as(token):
+            saved_tracks = spotify.get_saved_tracks()  # SavedTrackPaging
+            saved_playlists = spotify.get_saved_playlists()  # PlaylistTrackPaging
 
-        # playlist name -> BytesIO csv file
-        csv_files = {"Liked tracks": generate_csv(spotify.playlist_unpack(saved_tracks))}
-        for playlist in saved_playlists:
-            playlist_contents = spotify.playlist_unpack(playlist.tracks)
-            csv_files[playlist.name] = generate_csv(playlist_contents)
+            # playlist name -> BytesIO csv file
+            csv_files = {"Liked tracks": generate_csv(spotify.playlist_unpack(saved_tracks))}
+            for playlist in saved_playlists:
+                playlist_contents = spotify.playlist_unpack(playlist.tracks)
+                csv_files[playlist.name] = generate_csv(playlist_contents)
 
         zip_file = generate_zip(csv_files)
 
@@ -110,9 +128,11 @@ def init_app():
 
     @app.route('/logout', methods=['GET'])
     def logout():
-        uid = session.pop('user', None)
-        if uid is not None:
-            users.pop(uid, None)
+        user_id = session.pop('user', None)
+        if user_id is not None:
+            user = User.query.get(user_id)
+            db.session.delete(user)
+            db.session.commit()
 
         return redirect(url_for('home'))
 
