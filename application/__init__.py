@@ -4,13 +4,23 @@ from application.user_auth import UserAuth, auths, refresh_token
 from application.spotify_handler import SpotifyHandler
 from application.file_handler import generate_csv, generate_zip
 from datetime import timedelta, datetime
+from functools import wraps
+
+
+def login_required(f):
+    """Redirect to '401' if user not in flask.session"""
+    @wraps(f)
+    def decorated_func(*args, **kwargs):
+        if 'user' not in session:
+            return abort(401)
+        return f(*args, **kwargs)
+    return decorated_func
 
 
 def init_app():
     app = Flask(__name__)
     app.config.from_object('config.Config')
     db = SQLAlchemy(app)
-
     spotify = SpotifyHandler()
 
     class User(db.Model):
@@ -18,11 +28,10 @@ def init_app():
         id = db.Column(db.String, primary_key=True)
         created = db.Column(db.DateTime, default=datetime.utcnow)
         token_object = db.Column(db.PickleType())
-
     db.create_all()
 
     @app.before_request
-    def make_session_permanent():
+    def make_session_permanent():  # "remember me" functionality
         session.permanent = True
         app.permanent_session_lifetime = timedelta(days=7)
 
@@ -32,22 +41,22 @@ def init_app():
             return redirect(url_for('results'))
 
         if request.method == 'POST':
-            auth = UserAuth()
+            auth = UserAuth()  # user authorisation flow
             auths[auth.state] = auth
 
-            return redirect(auth.url)
+            return redirect(auth.url)  # redirect for authorisation via spotify account service
         return render_template('index.html')
 
     @app.route('/callback', methods=['GET'])
     def login_callback():
-        if request.args.get('error') == 'access_denied':
+        if request.args.get('error') == 'access_denied':  # 401 if access denied
             abort(401)
 
         code = request.args.get('code')
         state = request.args.get('state')
         auth = auths.pop(state)
 
-        if auth is None:
+        if auth is None:  # additional state for protection
             abort(400)
 
         token = auth.get_token(code, state)
@@ -56,11 +65,11 @@ def init_app():
             user_id = spotify.current_user().id
 
         user = User.query.filter_by(id=user_id).first()
-        if user is None:  # add entry if user not in db
+        if user is None:  # create entry if user not in db
             user = User(id=user_id, token_object=token)
             db.session.add(user)
             db.session.commit()
-        else:
+        else:  # update entry if user in db
             user.token_object = token
             db.session.commit()
 
@@ -69,6 +78,7 @@ def init_app():
         return redirect(url_for('results'))
 
     @app.route('/results', methods=['GET'])
+    @login_required
     def results():
         user_id = session.get('user')
         token = User.query.filter_by(id=user_id).first().token_object
@@ -93,6 +103,7 @@ def init_app():
         )
 
     @app.route('/download/csv')
+    @login_required
     def send_csv():
         user_id = session.get('user')
         token = User.query.filter_by(id=user_id).first().token_object
@@ -114,6 +125,7 @@ def init_app():
         )
 
     @app.route('/download/zip')
+    @login_required
     def send_zip():
         user_id = session.get('user')
         token = User.query.filter_by(id=user_id).first().token_object
@@ -136,6 +148,7 @@ def init_app():
         )
 
     @app.route('/logout', methods=['GET'])
+    @login_required
     def logout():
         user_id = session.pop('user', None)
         if user_id is not None:
