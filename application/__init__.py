@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from application.user_auth import UserAuth, auths, refresh_token
 from application.spotify_handler import SpotifyHandler
 from application.file_handler import generate_csv, generate_zip
+from datetime import timedelta, datetime
 
 
 def init_app():
@@ -15,12 +16,15 @@ def init_app():
     class User(db.Model):
         __tablename__ = "users"
         id = db.Column(db.String, primary_key=True)
+        created = db.Column(db.DateTime, default=datetime.utcnow)
         token_object = db.Column(db.PickleType())
+
     db.create_all()
 
     @app.before_request
     def make_session_permanent():
         session.permanent = True
+        app.permanent_session_lifetime = timedelta(days=7)
 
     @app.route('/', methods=['GET', 'POST'])
     def home():
@@ -48,14 +52,19 @@ def init_app():
 
         token = auth.get_token(code, state)
 
-        with spotify.token_as(token):
-            spotify_user_id = spotify.current_user().id
+        with spotify.token_as(token):  # get spotify user id
+            user_id = spotify.current_user().id
 
-        user = User(id=spotify_user_id, token_object=token)
-        db.session.add(user)
-        db.session.commit()
+        user = User.query.filter_by(id=user_id).first()
+        if user is None:  # add entry if user not in db
+            user = User(id=user_id, token_object=token)
+            db.session.add(user)
+            db.session.commit()
+        else:
+            user.token_object = token
+            db.session.commit()
 
-        session['user'] = spotify_user_id
+        session['user'] = user_id
 
         return redirect(url_for('results'))
 
