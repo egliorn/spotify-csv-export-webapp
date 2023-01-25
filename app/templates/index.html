@@ -1,0 +1,9 @@
+{% extends '_layout.html' %}
+
+{% block main %}
+<main>
+    <section class="container-fluid text-center">
+        <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg">Sign in with Spotify</a>
+    </section>
+</main>
+{% endblock %}
