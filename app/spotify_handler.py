@@ -27,10 +27,11 @@ class SpotifyHandler(Spotify):
 
     def playlist_unpack(self, track_paging):
         """:returns contents of given 'SavedTrackPaging' or 'PlaylistTrackPaging'. """
-        contents = [["track_name", "artists", "album", "duration"]]
+        contents = [["track_uri", "track_name", "artists", "album", "duration"]]
         for item in self.all_items(track_paging):
             contents.append(
                 [
+                    item.track.uri,
                     item.track.name,
                     ", ".join([artist.name for artist in item.track.artists]),
                     item.track.album.name,
