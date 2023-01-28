@@ -4,13 +4,13 @@
     <main>
         {# welcome #}
         <section class="d-flex justify-content-between">
-            <h1>Welcome, {{ username }}</h1>
-            <a href="{{ url_for('logout') }}">logout</a>
+            <h1>id: {{ current_user.spotify_id }}</h1>
+            <a href="{{ url_for('auth.logout') }}">logout</a>
         </section>
 
         {# download all #}
         <section class="">
-            <p>download separate, or <a class="btn btn-primary btn-sm" href="{{ url_for('send_zip') }}">
+            <p>download separate, or <a class="btn btn-primary btn-sm" href="{{ url_for('main.send_zip') }}">
                 download all</a></p>
         </section>
 
@@ -18,14 +18,14 @@
         <section class="">
             <ul class="list-group w-auto">
                 <li class="list-group-item d-flex gap-3 py-3" aria-current="true">
-                    <img src="../static/images/playlist_example.jpeg"
+                    <img src="static/img/spotify_liked_tracks.png"
                          alt="" class="align-self-center rounded flex-shrink-0" width="60" height="60">
                     <div class="d-flex gap-2 w-100 justify-content-between">
                         <div>
-                            <h3 class="mb-0">Liked tracks</h3>
+                            <h3 class="mb-0">Liked Songs</h3>
                             <p class="mb-0 opacity-75">{{ saved_tracks.total }} songs</p>
                         </div>
-                        <a href="{{ url_for('send_csv', playlist_id="0", playlist_name="Liked tracks") }}"
+                        <a href="{{ url_for('main.send_csv', name='Liked Songs') }}"
                            class="opacity-50 text-nowrap"><i class="bi bi-download"></i></a>
                     </div>
                 </li>
@@ -36,16 +36,16 @@
         <section>
             <h2>Playlists</h2>
             <ul class="list-group w-auto">
-                {% for playlist in saved_playlists %}
+                {% for playlist in saved_playlists.items %}
                 <li class="list-group-item d-flex gap-3 py-3" aria-current="true">
-                    <img src="{{ playlist.images[0].url }}"
+                    <img src="{{ playlist.images[-1].url if playlist.images[0] else "static/img/spotify_playlist_ph.png"}}"
                          alt="" class="align-self-center rounded flex-shrink-0" width="60" height="60">
                     <div class="d-flex gap-2 w-100 justify-content-between">
                         <div>
                             <h3 class="mb-0">{{ playlist.name }}</h3>
                             <p class="mb-0 opacity-75">{{ playlist.tracks.total }} songs</p>
                         </div>
-                        <a href="{{ url_for('send_csv', playlist_id=playlist.id, playlist_name=playlist.name) }}"
+                        <a href="{{ url_for('main.send_csv', id=playlist.id, name=playlist.name) }}"
                            class="opacity-50 text-nowrap"><i class="bi bi-download"></i></a>
                     </div>
                 </li>
