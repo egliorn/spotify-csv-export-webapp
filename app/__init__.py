@@ -1,10 +1,12 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+from .spotify_handler import SpotifyHandler
 
 
 db = SQLAlchemy()
 login_manager = LoginManager()
+spotify = SpotifyHandler()
 
 
 def init_app():

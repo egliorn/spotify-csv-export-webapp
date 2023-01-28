@@ -3,6 +3,7 @@ from flask_login import current_user, login_user, logout_user, login_required
 import tekore as tk
 from sqlalchemy.exc import IntegrityError
 from . import db
+from . import spotify
 from .models import User
 
 
@@ -16,13 +17,16 @@ SCOPES = [
     'playlist-read-private',
 ]
 auths = {}  # Ongoing authorisations: state -> UserAuth
-spotify = tk.Spotify()
 
 
 def refresh_token(token):
-    """Refresh an access token and update in db."""
-    user = User.session.filter_by(spotify_id=current_user.spotify_id)
-    user.spotify_token = CRED.refresh(token)
+    """Refreshes the Spotify access token in db and current_user."""
+    user = User.query.filter_by(spotify_id=current_user.spotify_id)
+    refreshed_token = CRED.refresh(token)
+    user.token_object = refreshed_token
+    db.session.commit()
+
+    current_user.token_object = refreshed_token
 
 
 @bp.route('/login')
