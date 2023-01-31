@@ -3,8 +3,8 @@
 {% block main %}
     <main>
         {# welcome #}
-        <section class="d-flex justify-content-between mb-4">
-            <h1>{{ current_user.spotify_id }}</h1>
+        <section class="d-flex justify-content-between">
+            <h2 class="text-truncate pb-4">{{ current_user.spotify_id }}</h2>
             <a class="link-light text-decoration-none" href="{{ url_for('auth.logout') }}">logout</a>
         </section>
 
@@ -20,8 +20,8 @@
                             <p class="mb-0 opacity-75">{{ saved_tracks.total }} songs</p>
                         </div>
                         <a href="{{ url_for('main.send_csv', name='Liked Songs') }}"
-                           class="opacity-50 text-nowrap">
-                            <i class="link-light text-decoration-none bi bi-box-arrow-down"></i>
+                           class="opacity-75 text-nowrap link-light text-decoration-none">
+                            <i class="bi bi-download"></i>
                         </a>
                     </div>
                 </li>
@@ -42,8 +42,8 @@
                                 <p class="mb-0 opacity-75">{{ playlist.tracks.total }} songs</p>
                             </div>
                             <a href="{{ url_for('main.send_csv', id=playlist.id, name=playlist.name) }}"
-                               class="opacity-50 text-nowrap">
-                                <i class="link-light text-decoration-none bi bi-box-arrow-down"></i>
+                               class="opacity-75 text-nowrap link-light text-decoration-none">
+                                <i class="bi bi-download"></i>
                             </a>
                         </div>
                     </li>
@@ -52,8 +52,8 @@
         </section>
 
         {# download all #}
-        <section>
-            <a class="btn btn-light w-100" href="{{ url_for('main.send_zip') }}">Download all</a>
+        <section class="mb-4">
+            <a class="btn btn-light fw-bold w-100" href="{{ url_for('main.send_zip') }}">Download all</a>
         </section>
 
     </main>
