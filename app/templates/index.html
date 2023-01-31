@@ -18,17 +18,21 @@
     <main class="text-center px-3">
         <section>
             <h1>Spotify -> CSV export</h1>
-            <p class="lead">Export Spotify playlists to CSV.</p>
-            <p class="lead">
-                <a href="{{ url_for('auth.login') }}" class="btn btn-lg btn-success fw-bold">Sign in with Spotify</a>
-            </p>
+            <p class="lead">Export your Spotify playlists to .csv</p>
+            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                <a href="{{ url_for('auth.login') }}" class="btn btn-success fw-bold">Sign in with Spotify</a>
+                <a href="#" class="btn btn-outline-light fw-bold">How to use?</a>
+            </div>
         </section>
     </main>
 {% endblock %}
 
 
 {% block footer %}
-    <footer class="mt-auto text-center text-white-50">
-        <p>by <a href="https://twitter.com/mdo" class="text-white">@egliorn</a></p>
+    <footer class="mt-auto text-center">
+        <p class="text-white-50">
+            by
+            <a href="https://github.com/egliorn" class="text-white">@egliorn</a>
+        </p>
     </footer>
 {% endblock %}
