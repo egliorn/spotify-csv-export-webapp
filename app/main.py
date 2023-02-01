@@ -1,11 +1,24 @@
 from flask import Blueprint, render_template, request, send_file
 from flask_login import current_user, login_required
+from jinja2 import Environment, PackageLoader
 from .auth import refresh_token
 from . import spotify
 from .file_handler import generate_csv, generate_zip
 
 
 bp = Blueprint('main', __name__)
+
+
+@bp.app_template_filter()
+def playlist_image_filter(images):
+    """:returns 'medium', 'large' or placeholder photo image of playlist."""
+    if images:
+        try:
+            return images[-2].url  # try to pick “medium” image
+        except IndexError:
+            return images[-1].url  # pick “large”, if no other images
+
+    return "static/img/spotify_playlist_ph.png"  # if playlist doesn't have images
 
 
 @bp.before_request
