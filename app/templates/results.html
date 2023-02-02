@@ -35,7 +35,7 @@
                 {% for playlist in saved_playlists.items %}
                     <li class="list-group-item d-flex gap-3 py-3" aria-current="true">
                         <img src="{{ playlist.images | playlist_image_filter }}"
-                             alt="" class="align-self-center rounded flex-shrink-0" width="60" height="60">
+                             alt="" class="img-cover rounded flex-shrink-0" width="60" height="60">
                         <div class="d-flex gap-2 w-100 justify-content-between">
                             <div>
                                 <h3 class="mb-0">{{ playlist.name }}</h3>
