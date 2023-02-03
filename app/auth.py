@@ -1,4 +1,4 @@
-from flask import Blueprint, redirect, request, url_for
+from flask import Blueprint, redirect, request, url_for, abort
 from flask_login import current_user, login_user, logout_user, login_required
 import tekore as tk
 from sqlalchemy.exc import IntegrityError
@@ -47,7 +47,7 @@ def login_callback():
     auth = auths.pop(state, None)
 
     if auth is None:
-        return 'Invalid state', 400
+        abort(400)
 
     token = auth.request_token(code, state)
 
