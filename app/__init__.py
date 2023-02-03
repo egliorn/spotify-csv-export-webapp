@@ -17,6 +17,7 @@ def init_app():
     # init plugins
     db.init_app(app)
     login_manager.init_app(app)
+    login_manager.login_view = 'auth.login'
 
     from .models import User  # import User model from here to avoid circular import
 
@@ -26,8 +27,9 @@ def init_app():
 
     with app.app_context():
         # blueprints
-        from . import main, auth
+        from . import main, auth, error_handler
         app.register_blueprint(main.bp)
         app.register_blueprint(auth.bp)
+        app.register_blueprint(error_handler.bp)
 
         return app

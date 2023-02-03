@@ -1,6 +1,5 @@
 from flask import Blueprint, render_template, request, send_file
 from flask_login import current_user, login_required
-from jinja2 import Environment, PackageLoader
 from .auth import refresh_token
 from . import spotify
 from .file_handler import generate_csv, generate_zip

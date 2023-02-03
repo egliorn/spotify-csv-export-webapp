@@ -30,6 +30,23 @@
 
 {% block footer %}
     <footer class="mt-auto text-center">
+        {# errors #}
+        <section>
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div class=flashes>
+                        {% for message in messages %}
+                            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                                <div class="">{{ message }}</div>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                        aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+        </section>
+
         <p class="text-white-50">
             by
             <a href="https://github.com/egliorn" class="text-white">@egliorn</a>
