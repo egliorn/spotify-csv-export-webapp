@@ -1,9 +1,8 @@
-from flask import Blueprint, render_template, request, send_file
-from flask_login import current_user, login_required
-from .auth import refresh_token
-from . import spotify
+from flask import Blueprint, render_template, request, send_file, session
+from .auth import refresh_token, login_required
 from .file_handler import generate_csv, generate_zip
-
+from . import spotify
+import jsonpickle
 
 bp = Blueprint('main', __name__)
 
@@ -22,8 +21,11 @@ def playlist_image_filter(images):
 
 @bp.before_request
 def refresh_token_wrap():
-    if current_user.is_authenticated:
-        refresh_token(current_user.token_object)
+    user = session.get('username', None)
+    token = session.get('token', None)
+
+    if user is not None and token is not None:
+        refresh_token(jsonpickle.decode(token))
 
 
 @bp.route('/')
@@ -34,7 +36,7 @@ def index():
 @bp.route('/results')
 @login_required
 def results():
-    token = current_user.token_object
+    token = jsonpickle.decode(session['token'])
 
     with spotify.token_as(token):
         saved_tracks = spotify.saved_tracks()
@@ -46,7 +48,7 @@ def results():
 @bp.route('/download/csv')
 @login_required
 def send_csv():
-    token = current_user.token_object
+    token = jsonpickle.decode(session['token'])
 
     playlist_id = request.args.get('id')
     playlist_name = request.args.get('name')
@@ -67,7 +69,7 @@ def send_csv():
 @bp.route('/download/zip')
 @login_required
 def send_zip():
-    token = current_user.token_object
+    token = jsonpickle.decode(session['token'])
 
     with spotify.token_as(token):
         saved_tracks = spotify.saved_tracks()  # SavedTrackPaging

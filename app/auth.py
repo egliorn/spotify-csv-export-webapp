@@ -1,10 +1,8 @@
-from flask import Blueprint, redirect, request, url_for, abort
-from flask_login import current_user, login_user, logout_user, login_required
+from flask import Blueprint, redirect, request, url_for, abort, session
 import tekore as tk
-from sqlalchemy.exc import IntegrityError
-from . import db
 from . import spotify
-from .models import User
+import jsonpickle
+from functools import wraps
 
 
 bp = Blueprint('auth', __name__)
@@ -19,19 +17,28 @@ SCOPES = [
 auths = {}  # Ongoing authorisations: state -> UserAuth
 
 
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if session.get('username', None) is None:
+            return redirect(url_for('main.index'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+
 def refresh_token(token):
     """Refreshes the Spotify access token in db and current_user."""
-    user = User.query.filter_by(spotify_id=current_user.spotify_id)
-    refreshed_token = CRED.refresh(token)
-    user.token_object = refreshed_token
-    db.session.commit()
-
-    current_user.token_object = refreshed_token
+    if token.is_expiring:
+        refreshed_token = CRED.refresh(token)
+        session['token'] = jsonpickle.encode(refreshed_token)
 
 
 @bp.route('/login')
 def login():
-    if current_user.is_authenticated:
+    user = session.get('username', None)
+    token = session.get('token', None)
+
+    if user is not None and token is not None:
         return redirect(url_for('main.results'))
 
     auth = tk.UserAuth(cred=CRED, scope=SCOPES)
@@ -54,22 +61,8 @@ def login_callback():
     with spotify.token_as(token):
         spotify_id = spotify.current_user().id
 
-    try:
-        user = User(
-            spotify_id=spotify_id,
-            token_object=token
-        )
-        db.session.add(user)
-        db.session.commit()
-
-    except IntegrityError:  # if user with spotify_id already exists in db
-        db.session.rollback()
-
-        user = User.query.filter_by(spotify_id=spotify_id).first()
-        user.token_object = token
-        db.session.commit()
-
-    login_user(user, remember=True)
+    session['username'] = spotify_id
+    session['token'] = jsonpickle.encode(token)
 
     return redirect(url_for('main.results'))
 
@@ -77,10 +70,6 @@ def login_callback():
 @bp.route('/logout')
 @login_required
 def logout():
-    user = User.query.filter_by(spotify_id=current_user.spotify_id).first()
-    db.session.delete(user)
-    db.session.commit()
-
-    logout_user()
-
+    session.pop('username')
+    session.pop('token')
     return redirect(url_for('main.index'))

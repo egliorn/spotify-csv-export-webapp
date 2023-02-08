@@ -1,4 +1,4 @@
-from flask_login import current_user
+from flask import session
 from tekore import Spotify
 
 
@@ -11,12 +11,12 @@ class SpotifyHandler(Spotify):
     # for /results
     def saved_playlists_simple(self):
         """:returns user's saved playlists, 'SimplePlaylistPaging'. """
-        return self.playlists(user_id=current_user.spotify_id)
+        return self.playlists(user_id=session['username'])
 
     # for export to .csv
     def saved_playlists_full(self):
         """:returns a list of all user's playlists, 'FullPlaylist'. """
-        user_playlists = self.playlists(user_id=current_user.spotify_id)
+        user_playlists = self.playlists(user_id=session['username'])
         playlists_ids = [pl.id for pl in user_playlists.items]
 
         return [self.playlist(playlist_id) for playlist_id in playlists_ids]

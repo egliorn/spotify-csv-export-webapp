@@ -4,7 +4,7 @@
     <main>
         {# welcome #}
         <section class="d-flex justify-content-between">
-            <h2 class="text-truncate pb-4">{{ current_user.spotify_id }}</h2>
+            <h2 class="text-truncate pb-4">{{ session['user'] }}</h2>
             <a class="link-light text-decoration-none" href="{{ url_for('auth.logout') }}">logout</a>
         </section>
 
