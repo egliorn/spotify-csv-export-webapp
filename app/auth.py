@@ -1,4 +1,4 @@
-from flask import Blueprint, redirect, request, url_for, abort, session
+from flask import Blueprint, redirect, request, url_for, abort, session, flash
 import tekore as tk
 from . import spotify
 import jsonpickle
@@ -14,31 +14,29 @@ SCOPES = [
     'playlist-read-collaborative',
     'playlist-read-private',
 ]
+
 auths = {}  # Ongoing authorisations: state -> UserAuth
 
 
 def login_required(f):
+    """Redirect to /index, if userid and token not in session."""
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if session.get('username', None) is None:
+        if not session.get('userid') and session.get('token'):
+            flash("You need to be signed in to access this page.")
             return redirect(url_for('main.index'))
         return f(*args, **kwargs)
     return decorated_function
 
 
 def refresh_token(token):
-    """Refreshes the Spotify access token in db and current_user."""
-    if token.is_expiring:
-        refreshed_token = CRED.refresh(token)
-        session['token'] = jsonpickle.encode(refreshed_token)
+    """:returns refreshed Spotify token."""
+    return CRED.refresh(token)
 
 
 @bp.route('/login')
 def login():
-    user = session.get('username', None)
-    token = session.get('token', None)
-
-    if user is not None and token is not None:
+    if session.get('userid') and session.get('token'):  # redirect to /results if userid and token in session
         return redirect(url_for('main.results'))
 
     auth = tk.UserAuth(cred=CRED, scope=SCOPES)
@@ -61,7 +59,7 @@ def login_callback():
     with spotify.token_as(token):
         spotify_id = spotify.current_user().id
 
-    session['username'] = spotify_id
+    session['userid'] = spotify_id
     session['token'] = jsonpickle.encode(token)
 
     return redirect(url_for('main.results'))
@@ -70,6 +68,6 @@ def login_callback():
 @bp.route('/logout')
 @login_required
 def logout():
-    session.pop('username')
+    session.pop('userid')
     session.pop('token')
     return redirect(url_for('main.index'))

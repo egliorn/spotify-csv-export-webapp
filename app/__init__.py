@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, session
 from .spotify_handler import SpotifyHandler
 
 
@@ -9,6 +9,10 @@ def init_app():
     """Initialize core app."""
     app = Flask(__name__, instance_relative_config=False)
     app.config.from_object('config.Development')
+
+    @app.before_request
+    def make_session_permanent():
+        session.permanent = True
 
     with app.app_context():
         # blueprints

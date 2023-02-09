@@ -11,12 +11,12 @@ class SpotifyHandler(Spotify):
     # for /results
     def saved_playlists_simple(self):
         """:returns user's saved playlists, 'SimplePlaylistPaging'. """
-        return self.playlists(user_id=session['username'])
+        return self.playlists(user_id=session['userid'])
 
     # for export to .csv
     def saved_playlists_full(self):
         """:returns a list of all user's playlists, 'FullPlaylist'. """
-        user_playlists = self.playlists(user_id=session['username'])
+        user_playlists = self.playlists(user_id=session['userid'])
         playlists_ids = [pl.id for pl in user_playlists.items]
 
         return [self.playlist(playlist_id) for playlist_id in playlists_ids]
