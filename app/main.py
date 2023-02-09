@@ -1,11 +1,27 @@
-from flask import Blueprint, render_template, request, send_file
-from flask_login import current_user, login_required
-from .auth import refresh_token
-from . import spotify
+from flask import Blueprint, render_template, request, send_file, session, g
+from .auth import refresh_token, login_required
 from .file_handler import generate_csv, generate_zip
+from . import spotify
+import jsonpickle
 
 
 bp = Blueprint('main', __name__)
+
+
+def get_token():
+    """:returns Spotify token from the session."""
+    if 'token' not in g:
+        g.token = jsonpickle.decode(session['token'])
+    return g.token
+
+
+@bp.before_request
+def update_token():
+    """Refresh and put token to session if token expiring."""
+    if session.get('userid') and session.get('token'):  # check if userid and token in session
+        token = get_token()
+        if token.is_expiring:
+            session['token'] = jsonpickle.encode(refresh_token(token))  # put refreshed token to session
 
 
 @bp.app_template_filter()
@@ -20,12 +36,6 @@ def playlist_image_filter(images):
     return "static/img/spotify_playlist_ph.png"  # if playlist doesn't have images
 
 
-@bp.before_request
-def refresh_token_wrap():
-    if current_user.is_authenticated:
-        refresh_token(current_user.token_object)
-
-
 @bp.route('/')
 def index():
     return render_template('index.html')
@@ -34,7 +44,7 @@ def index():
 @bp.route('/results')
 @login_required
 def results():
-    token = current_user.token_object
+    token = get_token()
 
     with spotify.token_as(token):
         saved_tracks = spotify.saved_tracks()
@@ -46,7 +56,7 @@ def results():
 @bp.route('/download/csv')
 @login_required
 def send_csv():
-    token = current_user.token_object
+    token = get_token()
 
     playlist_id = request.args.get('id')
     playlist_name = request.args.get('name')
@@ -67,7 +77,7 @@ def send_csv():
 @bp.route('/download/zip')
 @login_required
 def send_zip():
-    token = current_user.token_object
+    token = get_token()
 
     with spotify.token_as(token):
         saved_tracks = spotify.saved_tracks()  # SavedTrackPaging

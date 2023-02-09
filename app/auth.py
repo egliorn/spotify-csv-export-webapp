@@ -1,10 +1,8 @@
-from flask import Blueprint, redirect, request, url_for, abort
-from flask_login import current_user, login_user, logout_user, login_required
+from flask import Blueprint, redirect, request, url_for, abort, session, flash
 import tekore as tk
-from sqlalchemy.exc import IntegrityError
-from . import db
 from . import spotify
-from .models import User
+import jsonpickle
+from functools import wraps
 
 
 bp = Blueprint('auth', __name__)
@@ -16,22 +14,29 @@ SCOPES = [
     'playlist-read-collaborative',
     'playlist-read-private',
 ]
+
 auths = {}  # Ongoing authorisations: state -> UserAuth
 
 
-def refresh_token(token):
-    """Refreshes the Spotify access token in db and current_user."""
-    user = User.query.filter_by(spotify_id=current_user.spotify_id)
-    refreshed_token = CRED.refresh(token)
-    user.token_object = refreshed_token
-    db.session.commit()
+def login_required(f):
+    """Redirect to /index, if userid and token not in session."""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get('userid') and session.get('token'):
+            flash("You need to be signed in to access this page.")
+            return redirect(url_for('main.index'))
+        return f(*args, **kwargs)
+    return decorated_function
 
-    current_user.token_object = refreshed_token
+
+def refresh_token(token):
+    """:returns refreshed Spotify token."""
+    return CRED.refresh(token)
 
 
 @bp.route('/login')
 def login():
-    if current_user.is_authenticated:
+    if session.get('userid') and session.get('token'):  # redirect to /results if userid and token in session
         return redirect(url_for('main.results'))
 
     auth = tk.UserAuth(cred=CRED, scope=SCOPES)
@@ -54,22 +59,8 @@ def login_callback():
     with spotify.token_as(token):
         spotify_id = spotify.current_user().id
 
-    try:
-        user = User(
-            spotify_id=spotify_id,
-            token_object=token
-        )
-        db.session.add(user)
-        db.session.commit()
-
-    except IntegrityError:  # if user with spotify_id already exists in db
-        db.session.rollback()
-
-        user = User.query.filter_by(spotify_id=spotify_id).first()
-        user.token_object = token
-        db.session.commit()
-
-    login_user(user, remember=True)
+    session['userid'] = spotify_id
+    session['token'] = jsonpickle.encode(token)
 
     return redirect(url_for('main.results'))
 
@@ -77,10 +68,6 @@ def login_callback():
 @bp.route('/logout')
 @login_required
 def logout():
-    user = User.query.filter_by(spotify_id=current_user.spotify_id).first()
-    db.session.delete(user)
-    db.session.commit()
-
-    logout_user()
-
+    session.pop('userid')
+    session.pop('token')
     return redirect(url_for('main.index'))
