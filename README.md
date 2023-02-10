@@ -1,6 +1,8 @@
 # spotify-to-csv-export-webapp
 Web app, to export saved tracks and playlists of Spotify user in CSV format.
 
+*Read this in other languages: [English](README.md), [Русский](README.ru.md).*
+
 Stack: Flask, [Tekore](https://github.com/felix-hilden/tekore) _(Spotify Web API client)_, Bootstrap 5.
 
 Used [scopes](https://developer.spotify.com/documentation/general/guides/authorization/scopes/):
