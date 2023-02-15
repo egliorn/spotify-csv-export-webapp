@@ -3,6 +3,7 @@ import tekore as tk
 from . import spotify
 import jsonpickle
 from functools import wraps
+from flask_babel import _
 
 
 bp = Blueprint('auth', __name__)
@@ -23,7 +24,7 @@ def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if not session.get('userid') and session.get('token'):
-            flash("You need to be signed in to access this page.")
+            flash(_("You need to be signed in to access this page."))
             return redirect(url_for('main.index'))
         return f(*args, **kwargs)
     return decorated_function

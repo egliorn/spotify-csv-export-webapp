@@ -17,11 +17,11 @@
 {% block main %}
     <main class="text-center px-3">
         <section>
-            <h1>Spotify -> CSV export</h1>
-            <p class="lead">Export your Spotify playlists to .csv</p>
+            <h1>{{ _('Spotify -> CSV export') }}</h1>
+            <p class="lead">{{ _('Export your Spotify playlists to .csv') }}</p>
             <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-                <a href="{{ url_for('auth.login') }}" class="btn btn-success fw-bold">Sign in with Spotify</a>
-                <a href="https://github.com/egliorn/spotify-csv-export-webapp#readme" class="btn btn-outline-light fw-bold">What is this?</a>
+                <a href="{{ url_for('auth.login') }}" class="btn btn-success fw-bold">{{ _('Sign in with Spotify') }}</a>
+                <a target="_blank" href="https://github.com/egliorn/spotify-csv-export-webapp#readme" class="btn btn-outline-light fw-bold">{{ _('What is this?') }}</a>
             </div>
         </section>
     </main>
@@ -48,7 +48,7 @@
         </section>
 
         <p class="text-white-50">
-            by
+            {{ _('by') }}
             <a href="https://github.com/egliorn" class="text-white">@egliorn</a>
         </p>
     </footer>

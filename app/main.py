@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, send_file, session, g
 from .auth import refresh_token, login_required
 from .file_handler import generate_csv, generate_zip
-from . import spotify
+from . import spotify, babel
 import jsonpickle
 
 

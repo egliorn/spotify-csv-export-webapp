@@ -7,7 +7,7 @@
         <h1 class="display-1">{{ code }}</h1>
         <p class="fs-3">{{ error }}</p>
         <p class="lead">{{ msg }}</p>
-        <a href="{{ url_for('main.index') }}" class="btn btn-light"><i class="bi bi-house-fill"></i> Go home</a>
+        <a href="{{ url_for('main.index') }}" class="btn btn-light"><i class="bi bi-house-fill"></i> {{ _('Go home') }}</a>
     </main>
 {% endblock %}
 
