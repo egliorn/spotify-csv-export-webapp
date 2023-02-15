@@ -14,7 +14,12 @@ def init_app():
 
     # babel
     def get_locale():
-        return request.accept_languages.best_match(app.config['LANGUAGES'])  # best lang match
+        lang = session.get('lang', None)
+        if lang is not None:  # if lang already in session
+            return session.get('lang')
+        lang = request.accept_languages.best_match(app.config['LANGUAGES'])  # best lang match
+        session['lang'] = lang
+        return lang
     babel.init_app(app, locale_selector=get_locale)
 
     # permanent session
