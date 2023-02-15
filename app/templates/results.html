@@ -1,11 +1,23 @@
 {% extends "_layout.html" %}
 
 {% block main %}
+    <header class="mb-2">
+        <div class="d-flex justify-content-between">
+            <a target="_blank" href="https://github.com/egliorn/spotify-to-csv-export-webapp" class="link-secondary text-decoration-none">
+                <i class="bi bi-github"></i> spotify-csv-export-webapp
+            </a>
+            <nav class="nav nav-masthead">
+                <a class="nav-link fw-bold py-1 px-0 {{ 'active' if session['lang']=='en' }}" aria-current="page" href="{{ url_for('main.lang_picker', lang='en') }}">EN</a>
+                <a class="nav-link fw-bold py-1 px-0 {{ 'active' if session['lang']=='ru' }}" href="{{ url_for('main.lang_picker', lang='ru') }}">RU</a>
+            </nav>
+        </div>
+    </header>
+
     <main>
         {# welcome #}
         <section class="d-flex justify-content-between">
             <h2 class="text-truncate pb-4">{{ session['userid'] }}</h2>
-            <a class="link-light text-decoration-none" href="{{ url_for('auth.logout') }}">logout</a>
+            <a class="link-light text-decoration-none" href="{{ url_for('auth.logout') }}">{{ _('logout') }}</a>
         </section>
 
         {# saved tracks #}
@@ -16,8 +28,8 @@
                          alt="" class="align-self-center rounded flex-shrink-0" width="60" height="60">
                     <div class="d-flex gap-2 w-100 justify-content-between">
                         <div>
-                            <h3 class="mb-0">Liked Songs</h3>
-                            <p class="mb-0 opacity-75">{{ saved_tracks.total }} songs</p>
+                            <h3 class="mb-0">{{ _('Liked Songs') }}</h3>
+                            <p class="mb-0 opacity-75">{{ _('songs') }}: {{ saved_tracks.total }}</p>
                         </div>
                         <a href="{{ url_for('main.send_csv', name='Liked Songs') }}"
                            class="opacity-75 text-nowrap link-light text-decoration-none">
@@ -30,7 +42,7 @@
 
         {# saved playlists #}
         <section class="mb-4">
-            <h2>Playlists</h2>
+            <h2>{{ _('Playlists') }}</h2>
             <ul class="list-group w-auto">
                 {% for playlist in saved_playlists.items %}
                     <li class="list-group-item d-flex gap-3 py-3" aria-current="true">
@@ -39,7 +51,7 @@
                         <div class="d-flex gap-2 w-100 justify-content-between">
                             <div>
                                 <h3 class="mb-0">{{ playlist.name }}</h3>
-                                <p class="mb-0 opacity-75">{{ playlist.tracks.total }} songs</p>
+                                <p class="mb-0 opacity-75">{{ _('songs') }}: {{ playlist.tracks.total }}</p>
                             </div>
                             <a href="{{ url_for('main.send_csv', id=playlist.id, name=playlist.name) }}"
                                class="opacity-75 text-nowrap link-light text-decoration-none">
@@ -52,8 +64,12 @@
         </section>
 
         {# download all #}
-        <section class="mb-4">
-            <a class="btn btn-light fw-bold w-100" href="{{ url_for('main.send_zip') }}">Download all</a>
+        <section class="mb-2">
+            <a class="btn btn-light fw-bold w-100" href="{{ url_for('main.send_zip') }}">{{ _('Download all') }}</a>
+        </section>
+
+        <section class="text-center mb-4">
+            <a target="_blank" class="link-light" href="https://github.com/egliorn/spotify-csv-export-webapp#readme"><i class="bi bi-github"></i> {{ _('Read more') }}</a>
         </section>
 
     </main>

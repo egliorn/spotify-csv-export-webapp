@@ -1,7 +1,7 @@
-from flask import Blueprint, render_template, request, send_file, session, g
+from flask import Blueprint, render_template, request, send_file, session, g, redirect, url_for
 from .auth import refresh_token, login_required
 from .file_handler import generate_csv, generate_zip
-from . import spotify
+from . import spotify, babel
 import jsonpickle
 
 
@@ -34,6 +34,13 @@ def playlist_image_filter(images):
             return images[-1].url  # pick “large”, if no other images
 
     return "static/img/spotify_playlist_ph.png"  # if playlist doesn't have images
+
+
+@bp.route('/lang_pick')
+def lang_picker():
+    prev_page = request.referrer  # link to previous page
+    session['lang'] = request.args.get('lang')
+    return redirect(prev_page)
 
 
 @bp.route('/')
