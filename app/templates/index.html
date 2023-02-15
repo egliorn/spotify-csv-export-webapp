@@ -3,12 +3,14 @@
 {% block header %}
     <header class="mb-auto">
         <div class="d-flex justify-content-between">
-            <a class="link-light text-decoration-none" href="https://github.com/egliorn/spotify-to-csv-export-webapp">
+            <a target="_blank" class="link-light text-decoration-none" href="https://github.com/egliorn/spotify-to-csv-export-webapp">
                 <i class="bi bi-github"></i> spotify-csv-export-webapp
             </a>
             <nav class="nav nav-masthead">
-                <a class="nav-link fw-bold py-1 px-0 active" aria-current="page" href="#">EN</a>
-                <a class="nav-link fw-bold py-1 px-0" href="#">RU</a>
+                <a class="nav-link fw-bold py-1 px-0 {{ 'active' if session['lang']=='en' }}" aria-current="page"
+                   href="{{ url_for('main.lang_picker', lang='en') }}">EN</a>
+                <a class="nav-link fw-bold py-1 px-0 {{ 'active' if session['lang']=='ru' }}"
+                   href="{{ url_for('main.lang_picker', lang='ru') }}">RU</a>
             </nav>
         </div>
     </header>

@@ -1,6 +1,18 @@
 {% extends "_layout.html" %}
 
 {% block main %}
+    <header class="mb-2">
+        <div class="d-flex justify-content-between">
+            <a target="_blank" href="https://github.com/egliorn/spotify-to-csv-export-webapp" class="link-secondary text-decoration-none">
+                <i class="bi bi-github"></i> spotify-csv-export-webapp
+            </a>
+            <nav class="nav nav-masthead">
+                <a class="nav-link fw-bold py-1 px-0 {{ 'active' if session['lang']=='en' }}" aria-current="page" href="{{ url_for('main.lang_picker', lang='en') }}">EN</a>
+                <a class="nav-link fw-bold py-1 px-0 {{ 'active' if session['lang']=='ru' }}" href="{{ url_for('main.lang_picker', lang='ru') }}">RU</a>
+            </nav>
+        </div>
+    </header>
+
     <main>
         {# welcome #}
         <section class="d-flex justify-content-between">
@@ -17,7 +29,7 @@
                     <div class="d-flex gap-2 w-100 justify-content-between">
                         <div>
                             <h3 class="mb-0">{{ _('Liked Songs') }}</h3>
-                            <p class="mb-0 opacity-75">{{ saved_tracks.total }} {{ _('songs') }}</p>
+                            <p class="mb-0 opacity-75">{{ _('songs') }}: {{ saved_tracks.total }}</p>
                         </div>
                         <a href="{{ url_for('main.send_csv', name='Liked Songs') }}"
                            class="opacity-75 text-nowrap link-light text-decoration-none">
@@ -39,7 +51,7 @@
                         <div class="d-flex gap-2 w-100 justify-content-between">
                             <div>
                                 <h3 class="mb-0">{{ playlist.name }}</h3>
-                                <p class="mb-0 opacity-75">{{ playlist.tracks.total }} {{ _('songs') }}</p>
+                                <p class="mb-0 opacity-75">{{ _('songs') }}: {{ playlist.tracks.total }}</p>
                             </div>
                             <a href="{{ url_for('main.send_csv', id=playlist.id, name=playlist.name) }}"
                                class="opacity-75 text-nowrap link-light text-decoration-none">
@@ -57,7 +69,7 @@
         </section>
 
         <section class="text-center mb-4">
-            <a target="_blank" class="link-light" href="https://github.com/egliorn/spotify-csv-export-webapp#readme">{{ _('Read more') }}</a>
+            <a target="_blank" class="link-light" href="https://github.com/egliorn/spotify-csv-export-webapp#readme"><i class="bi bi-github"></i> {{ _('Read more') }}</a>
         </section>
 
     </main>

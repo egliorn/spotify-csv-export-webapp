@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-02-15 22:48+0300\n"
+"POT-Creation-Date: 2023-02-15 23:48+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -41,23 +41,23 @@ msgstr ""
 msgid "Go home"
 msgstr ""
 
-#: app/templates/index.html:20
+#: app/templates/index.html:22
 msgid "Spotify -> CSV export"
 msgstr ""
 
-#: app/templates/index.html:21
+#: app/templates/index.html:23
 msgid "Export your Spotify playlists to .csv"
 msgstr ""
 
-#: app/templates/index.html:23
+#: app/templates/index.html:25
 msgid "Sign in with Spotify"
 msgstr ""
 
-#: app/templates/index.html:24
+#: app/templates/index.html:26
 msgid "What is this?"
 msgstr ""
 
-#: app/templates/index.html:51
+#: app/templates/index.html:53
 msgid "by"
 msgstr ""
 

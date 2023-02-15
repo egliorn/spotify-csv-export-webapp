@@ -38,8 +38,9 @@ def playlist_image_filter(images):
 
 @bp.route('/lang_pick')
 def lang_picker():
+    prev_page = request.referrer  # link to previous page
     session['lang'] = request.args.get('lang')
-    return redirect(url_for('main.index'))
+    return redirect(prev_page)
 
 
 @bp.route('/')
