@@ -1,16 +1,23 @@
 from flask import Flask, session, request
 from flask_babel import Babel
 from .spotify_handler import SpotifyHandler
+from flask_caching import Cache
 
 
 spotify = SpotifyHandler()
 babel = Babel()
+cache = Cache()
 
 
 def init_app():
     """Initialize core app."""
     app = Flask(__name__, instance_relative_config=False)
     app.config.from_object('config.Development')
+
+    # permanent session
+    @app.before_request
+    def make_session_permanent():
+        session.permanent = True
 
     # babel
     def get_locale():
@@ -20,12 +27,10 @@ def init_app():
         lang = request.accept_languages.best_match(app.config['LANGUAGES'])  # best lang match
         session['lang'] = lang
         return lang
-    babel.init_app(app, locale_selector=get_locale)
 
-    # permanent session
-    @app.before_request
-    def make_session_permanent():
-        session.permanent = True
+    # init plugins
+    babel.init_app(app, locale_selector=get_locale)
+    cache.init_app(app)
 
     with app.app_context():
         # blueprints

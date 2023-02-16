@@ -1,7 +1,7 @@
-from flask import Blueprint, render_template, request, send_file, session, g, redirect, url_for
+from flask import Blueprint, render_template, request, send_file, session, g, redirect, escape
 from .auth import refresh_token, login_required
 from .file_handler import generate_csv, generate_zip
-from . import spotify, babel
+from . import spotify, cache
 import jsonpickle
 
 
@@ -60,13 +60,13 @@ def results():
     return render_template('results.html', saved_tracks=saved_tracks, saved_playlists=saved_playlists)
 
 
-@bp.route('/download/csv')
+@bp.route('/download/csv/<playlist_name>')
+@cache.cached(timeout=50)
 @login_required
-def send_csv():
+def send_csv(playlist_name):
     token = get_token()
 
     playlist_id = request.args.get('id')
-    playlist_name = request.args.get('name')
 
     with spotify.token_as(token):
         if playlist_id:
@@ -75,13 +75,13 @@ def send_csv():
             track_paging = spotify.saved_tracks()
 
         playlist_contents = spotify.playlist_unpack(track_paging)
-
     csv_file = generate_csv(playlist_contents)
 
-    return send_file(csv_file, download_name=f"{playlist_name}.csv", mimetype='text/csv')
+    return send_file(csv_file, download_name=f"{escape(playlist_name)}.csv", mimetype='text/csv')
 
 
 @bp.route('/download/zip')
+@cache.cached(timeout=50)
 @login_required
 def send_zip():
     token = get_token()

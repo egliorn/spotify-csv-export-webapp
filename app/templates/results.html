@@ -31,7 +31,7 @@
                             <h3 class="mb-0">{{ _('Liked Songs') }}</h3>
                             <p class="mb-0 opacity-75">{{ _('songs') }}: {{ saved_tracks.total }}</p>
                         </div>
-                        <a href="{{ url_for('main.send_csv', name='Liked Songs') }}"
+                        <a href="{{ url_for('main.send_csv', playlist_name='Liked Songs') }}"
                            class="opacity-75 text-nowrap link-light text-decoration-none">
                             <i class="bi bi-download"></i>
                         </a>
@@ -53,7 +53,7 @@
                                 <h3 class="mb-0">{{ playlist.name }}</h3>
                                 <p class="mb-0 opacity-75">{{ _('songs') }}: {{ playlist.tracks.total }}</p>
                             </div>
-                            <a href="{{ url_for('main.send_csv', id=playlist.id, name=playlist.name) }}"
+                            <a href="{{ url_for('main.send_csv', id=playlist.id, playlist_name=playlist.name) }}"
                                class="opacity-75 text-nowrap link-light text-decoration-none">
                                 <i class="bi bi-download"></i>
                             </a>
