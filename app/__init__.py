@@ -12,7 +12,7 @@ cache = Cache()
 def init_app():
     """Initialize core app."""
     app = Flask(__name__, instance_relative_config=False)
-    app.config.from_object('config.Development')
+    app.config.from_object('config.Deployment')
 
     # permanent session
     @app.before_request
