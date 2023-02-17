@@ -1,18 +1,6 @@
 {% extends "_layout.html" %}
 
 {% block main %}
-    <header class="mb-2">
-        <div class="d-flex justify-content-between">
-            <a target="_blank" href="https://github.com/egliorn/spotify-to-csv-export-webapp" class="link-secondary text-decoration-none">
-                <i class="bi bi-github"></i> spotify-csv-export-webapp
-            </a>
-            <nav class="nav nav-masthead">
-                <a class="nav-link fw-bold py-1 px-0 {{ 'active' if session['lang']=='en' }}" aria-current="page" href="{{ url_for('main.lang_picker', lang='en') }}">EN</a>
-                <a class="nav-link fw-bold py-1 px-0 {{ 'active' if session['lang']=='ru' }}" href="{{ url_for('main.lang_picker', lang='ru') }}">RU</a>
-            </nav>
-        </div>
-    </header>
-
     <main>
         {# welcome #}
         <section class="d-flex justify-content-between">
@@ -68,9 +56,12 @@
             <a class="btn btn-light fw-bold w-100" href="{{ url_for('main.send_zip') }}">{{ _('Download all') }}</a>
         </section>
 
+        {# read more #}
         <section class="text-center mb-4">
-            <a target="_blank" class="link-light" href="https://github.com/egliorn/spotify-csv-export-webapp#readme"><i class="bi bi-github"></i> {{ _('Read more') }}</a>
+            <a target="_blank" class="link-light"
+               href="{{ 'https://github.com/egliorn/spotify-csv-export-webapp/blob/main/README.ru.md#spotify-to-csv-export-webapp' if session['lang']=='ru'
+               else 'https://github.com/egliorn/spotify-csv-export-webapp#readme' }}">
+               <i class="bi bi-github"></i> {{ _('Read more') }}</a>
         </section>
-
     </main>
 {% endblock %}

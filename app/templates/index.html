@@ -23,7 +23,12 @@
             <p class="lead">{{ _('Export your Spotify playlists to .csv') }}</p>
             <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
                 <a href="{{ url_for('auth.login') }}" class="btn btn-success fw-bold">{{ _('Sign in with Spotify') }}</a>
-                <a target="_blank" href="https://github.com/egliorn/spotify-csv-export-webapp#readme" class="btn btn-outline-light fw-bold">{{ _('What is this?') }}</a>
+                <a target="_blank"
+                   href="{{ 'https://github.com/egliorn/spotify-csv-export-webapp/blob/main/README.ru.md#spotify-to-csv-export-webapp' if session['lang']=='ru'
+                   else 'https://github.com/egliorn/spotify-csv-export-webapp#readme' }}"
+                   class="btn btn-outline-light fw-bold">
+                   {{ _('What is this?') }}
+                </a>
             </div>
         </section>
     </main>
@@ -51,7 +56,7 @@
 
         <p class="text-white-50">
             {{ _('by') }}
-            <a href="https://github.com/egliorn" class="text-white">@egliorn</a>
+            <a target="_blank" href="https://github.com/egliorn" class="text-white">@egliorn</a>
         </p>
     </footer>
 {% endblock %}
