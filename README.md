@@ -10,8 +10,10 @@ Used [scopes](https://developer.spotify.com/documentation/general/guides/authori
 - playlist-read-collaborative 
 - playlist-read-private
 
+**No user data is saved.** Read-only Spotify token stored in cookies.
+
 ## How to use
-1. Open website.
+1. Open [website](https://spotify-csv-export-webapp.onrender.com).
 2. Click `Sign in with Spotify`.
 3. Confirm access by clicking `I ACCEPT`.
 4. All your Spotify playlists will appear. Here you can download separate playlists or just download all.
