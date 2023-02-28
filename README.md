@@ -10,7 +10,7 @@ Used [scopes](https://developer.spotify.com/documentation/general/guides/authori
 - playlist-read-collaborative 
 - playlist-read-private
 
-**No user data is saved.** Read-only Spotify token stored in cookies.
+**No user data is saved.** Read-only Spotify token stored in cookies. The token and userid are removed from the cookies when the `logout` button is clicked.
 
 ## How to use
 1. Open [website](https://spotify-csv-export-webapp.onrender.com).

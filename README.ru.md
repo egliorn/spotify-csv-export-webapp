@@ -10,7 +10,7 @@
 - playlist-read-collaborative 
 - playlist-read-private
 
-**Приложение не хранит пользовательских данных.** Токен Spotify хранится в cookie.
+**Приложение не хранит пользовательских данных.** Токен Spotify хранится в cookie. Токен и ID пользователя удаляются из cookie после нажатия `выход`.
 
 ## Как использовать
 1. Откройте [веб-сайт](https://spotify-csv-export-webapp.onrender.com).
